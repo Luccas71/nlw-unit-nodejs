@@ -1,42 +1,19 @@
 import fastify from "fastify"
 import { z } from "zod"
+import { serializerCompiler, validatorCompiler, ZodTypeProvider } from "fastify-type-provider-zod" 
 import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient({
-    log: ['query']
-})
-
-// Métodos HTTP: GET, POST, PUT, DELETE, PATCH, HEADER, OPTIONS
-
-// Corpo da Requisição (Request Body)
-// Parametros de busca (Search Params / Query Params) `http://localhost:3333/users?name=Lucas`
-// Parametros de rota (Route Params) -> identificação de recursos `DELETE http://localhost:3333/users/3`
-// Cabeçalho (Headers) = Contexto 
-
-// Semantica = significado
+import { generateSlug } from "./utils/generate-slug"
+import { createEvent } from "./routes/create-event"
+import { registerForEvent } from "./routes/register-for-event"
 
 const app = fastify()
 
-app.post('/', async (request, reply) => {
-    const createEventSchema = z.object({
-        title: z.string().min(4),
-        details: z.string().nullable(),
-        maximumAttendees: z.number().int().positive().nullable()
-    })
+app.setValidatorCompiler(validatorCompiler)
+app.setSerializerCompiler(serializerCompiler)
 
-    const data = createEventSchema.parse(request.body)
-
-    const event = await prisma.event.create({
-        data: {
-            title: data.title,
-            details: data.details,
-            maximumAttendees: data.maximumAttendees,
-            slug: new Date().toISOString(),
-        },
-    })
-
-    return reply.status(201).send({ eventId: event.id })
-})
+// usando a rota criada
+app.register(createEvent)
+app.register(registerForEvent)
 
 app.listen({ port: 3333 }).then(() => {
     console.log("HTTP Server is running!")
