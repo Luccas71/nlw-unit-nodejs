@@ -1,0 +1,22 @@
+POST http://localhost:3333/events
+Content-Type: application/json
+
+{
+    "title": "Novo Evento 2",
+    "details": null,
+    "maximumAttendees": 1
+}
+
+###
+
+POST http://localhost:3333/events/89b478d7-8527-49e7-9a56-c46bf82b8df2/attendees
+Content-Type: application/json
+
+{
+    "name": "Lucas Volpato",
+    "email": "lucas1@email.com"
+}
+
+### 
+
+GET http://localhost:3333/events/89b478d7-8527-49e7-9a56-c46bf82b8df2
